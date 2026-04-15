@@ -25,17 +25,20 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void DelayFunction();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components)
 	TObjectPtr<UBoxComponent> Box;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components)
 	TObjectPtr<UStaticMeshComponent> Body;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components)
 	TObjectPtr<UProjectileMovementComponent> Movement;
 
 	

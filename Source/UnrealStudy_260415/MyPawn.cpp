@@ -11,6 +11,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "MyStaticMeshComponent.h"
+#include "EnhancedInputComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -30,10 +31,17 @@ AMyPawn::AMyPawn()
 	Body->SetupAttachment(Box);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_Body(TEXT("/Script/Engine.StaticMesh'/Game/P38/Meshes/SM_P38_Body.SM_P38_Body'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> MI_Body(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/P38/Materials/MI_P38.MI_P38'"));
 
 	if (SM_Body.Succeeded())
 	{
 		Body->SetStaticMesh(SM_Body.Object);
+	
+	}
+
+	if (MI_Body.Succeeded())
+	{
+		Body->SetMaterial(0, MI_Body.Object);
 	}
 
 	Left = CreateDefaultSubobject<UMyStaticMeshComponent>(TEXT("Left"));
@@ -87,27 +95,24 @@ void AMyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis(TEXT("Pitch"), this, &AMyPawn::Pitch);
-	PlayerInputComponent->BindAxis(TEXT("Roll"), this, &AMyPawn::Roll);
-	PlayerInputComponent->BindAxis(TEXT("Yaw"), this, &AMyPawn::Yaw);
-	PlayerInputComponent->BindAction(TEXT("Boost"), EInputEvent::IE_Pressed, this, &AMyPawn::Boost);
-	PlayerInputComponent->BindAction(TEXT("Boost"), EInputEvent::IE_Released, this, &AMyPawn::UnBoost);
-	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &AMyPawn::Fire);
+	UEnhancedInputComponent* UIC = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (UIC)
+	{
+		UIC->BindAction(IA_Rotate, ETriggerEvent::Triggered, this, &AMyPawn::Rotate);
+		UIC->BindAction(IA_Fire, ETriggerEvent::Triggered, this, &AMyPawn::Fire);
+		UIC->BindAction(IA_Boost, ETriggerEvent::Triggered, this, &AMyPawn::Boost);
+		UIC->BindAction(IA_Boost, ETriggerEvent::Completed, this, &AMyPawn::UnBoost);
+
+	}
 }
 
-void AMyPawn::Pitch(float Value)
-{
-	AddActorLocalRotation(FRotator(90 * Value * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 0, 0));
-}
 
-void AMyPawn::Roll(float Value)
+void AMyPawn::Rotate(const FInputActionValue& Value)
 {
-	AddActorLocalRotation(FRotator(0,0,60 * Value * UGameplayStatics::GetWorldDeltaSeconds(GetWorld())));
-}
+	FVector2D Rot = Value.Get<FVector2D>();
+	Rot = Rot * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()) * 60.0f;
 
-void AMyPawn::Yaw(float Value)
-{
-	AddActorLocalRotation(FRotator(0,40 * Value * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()),0));
+	AddActorLocalRotation(FRotator(Rot.Y, 0, Rot.X));
 }
 
 void AMyPawn::Fire()

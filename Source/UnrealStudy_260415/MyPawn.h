@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include <EnhancedInputLibrary.h>
 #include "MyPawn.generated.h"
 
 
@@ -14,6 +15,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UFloatingPawnMovement;
 class UMyStaticMeshComponent;
+class UInputAction;
 
 UCLASS()
 class UNREALSTUDY_260415_API AMyPawn : public APawn
@@ -35,35 +37,40 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UBoxComponent> Box;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> Body;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UMyStaticMeshComponent> Left;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UMyStaticMeshComponent> Right;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UArrowComponent> Arrow;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArm;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> Camera;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UFloatingPawnMovement> Movement;
 
-	void Pitch(float Value);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> IA_Rotate;
 
-	void Roll(float Value);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> IA_Fire;
 
-	void Yaw(float Value);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> IA_Boost;
+
+	void Rotate(const FInputActionValue& Value);
 
 	void Fire();
 

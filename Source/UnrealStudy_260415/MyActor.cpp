@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Gameframework/ProjectileMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 // Sets default values
@@ -21,11 +22,16 @@ AMyActor::AMyActor()
 	Body->SetupAttachment(Box);
 	Body->SetRelativeRotation(FRotator(-90, 0, 0));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Rocket_Body(TEXT("/Script/Engine.StaticMesh'/Game/P38/Meshes/SM_Rocket.SM_Rocket'"));
-
-	if (Rocket_Body.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_Body(TEXT("/Script/Engine.StaticMesh'/Game/P38/Meshes/SM_Rocket.SM_Rocket'"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> MI_Body(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/P38/Materials/MI_Rocket.MI_Rocket'"));
+	if (SM_Body.Succeeded())
 	{
-		Body->SetStaticMesh(Rocket_Body.Object);
+		Body->SetStaticMesh(SM_Body.Object);
+	}
+
+	if (MI_Body.Succeeded())
+	{
+		Body->SetMaterial(0, MI_Body.Object);
 	}
 
 	Movement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Movement"));
@@ -38,7 +44,20 @@ AMyActor::AMyActor()
 void AMyActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FLatentActionInfo F;
+	F.CallbackTarget = this;
+	F.ExecutionFunction = FName(TEXT("DelayFunction"));
+	F.Linkage = 1;
+	F.UUID = 0;
+
+	UKismetSystemLibrary::Delay(GetWorld(), 3.0f, F);
 	
+}
+
+void AMyActor::DelayFunction()
+{
+	Destroy();
 }
 
 // Called every frame
